@@ -1,0 +1,67 @@
+# This is a building process based on information gathered from OpenMVG and OpenMVS documentation.
+# Copy-paste each line of code into the command prompt. (This can be converted into a batch file later on.)
+
+# Install cmake
+https://cmake.org/install/
+
+# Install vcpkg
+mkdir C:\installations
+cd C:\installations
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install
+
+# Get and install dependencies using vcpkg; (longest part; this will take a little more than 3 hours)
+# choose the desired triplet, like "x64-windows", by setting the VCPKG_DEFAULT_TRIPLET environment variable or by specifying it after each package:
+.\vcpkg install zlib boost breakpad eigen3 ceres opencv cgal glew glfw3 --triplet x64-windows
+# OpenMVG documentation indicates that the following are needed: (will try later)
+# cereal ceres eigen3 libjpeg-turbo libpng tiff 
+
+# Make a toplevel directory for deps & build & src somewhere:
+cd..
+mkdir OpenMVS
+cd OpenMVS
+
+# Get VCGLib (Required):
+git clone https://github.com/cdcseacave/VCG.git
+
+# Get and unpack OpenMVS in OpenMVS/src:
+git clone https://github.com/cdcseacave/openMVS.git src
+
+# Make build directory:
+mkdir openMVS_build
+cd openMVS_build
+
+# Run CMake, where VCPKG_ROOT environment variable points to the root of vcpkg installation:
+cmake . "C:\installations\OpenMVS\src" -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE="C:\installations\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCG_ROOT="C:\installations\OpenMVS\VCG" 
+
+# Open the solution in MSVC and build it (build as Release)
+Make sure this fix is applied first before building... (Edit: The building process now seems fine without the change.)
+https://github.com/cdcseacave/openMVS/pull/375/commits/4dd95fdcef8414fecd289432448cea5dfe20381b
+
+# Similar process for OpenMVG
+cd C:\installations
+mkdir OpenMVG
+cd OpenMVG
+
+# Get VCGLib (not sure if required):
+git clone https://github.com/cdcseacave/VCG.git
+
+# Get and unpack OpenMVG in OpenMVG/src:
+git clone https://github.com/cdcseacave/openMVS.git src
+git submodule update -i
+# The use of --recursive might have been needed: (will try later)
+# git clone --recursive https://github.com/openMVG/openMVG.git
+
+# Make build directory:
+mkdir openMVG_build
+cd openMVG_build
+
+# Run CMake, where VCPKG_ROOT environment variable points to the root of vcpkg installation:
+cmake . "C:\installations\OpenMVG\src\src" -G "Visual Studio 15 2017 Win64" -DCMAKE_TOOLCHAIN_FILE="C:\installations\vcpkg\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DVCG_ROOT="C:\installations\OpenMVG\VCG" 
+
+# This is probably unnecessary for OpenMVG building: (will try later)
+# DVCPKG_TARGET_TRIPLET=x64-windows -DVCG_ROOT="C:\installations\OpenMVG\VCG" 
+
+# Open the solution in MSVC and build it (build as Release)
